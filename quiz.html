@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚡ Диагностика электрики — Электрик в Гомеле</title>
+
+  <!-- Favicon: молния через SVG data URI -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+
+  <!-- Шрифт Inter из Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ─── Сброс и базовые переменные ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-deep:    #0f1e35;
+      --bg-card:    #1a2a4a;
+      --bg-option:  #1e3356;
+      --accent:     #f97316;
+      --accent-h:   #fb923c;
+      --text:       #f1f5f9;
+      --text-muted: #94a3b8;
+      --border:     #2d4168;
+      --success:    #22c55e;
+      --error:      #ef4444;
+      --radius:     12px;
+      --shadow:     0 4px 24px rgba(0,0,0,0.4);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── Шапка ─── */
+    .site-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(15,30,53,0.95);
+      backdrop-filter: blur(8px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .logo span { color: var(--accent); }
+
+    .header-phone {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .header-phone:hover { color: var(--accent-h); }
+
+    /* ─── Основной контейнер ─── */
+    .quiz-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px 48px;
+      width: 100%;
+    }
+
+    .quiz-inner {
+      width: 100%;
+      max-width: 620px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* ─── Прогресс ─── */
+    .progress-block {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .progress-track {
+      height: 6px;
+      background: var(--bg-card);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-h));
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    /* ─── Карточка вопроса ─── */
+    .question-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 28px 24px;
+      box-shadow: var(--shadow);
+
+      /* анимация появления */
+      animation: fadeInUp 0.3s ease both;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .question-hint {
+      font-size: 0.78rem;
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+
+    .question-text {
+      font-size: 1.15rem;
+      font-weight: 600;
+      line-height: 1.5;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    /* ─── Варианты ответов ─── */
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Прячем стандартный input */
+    .option-item input { display: none; }
+
+    .option-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--bg-option);
+      border: 2px solid transparent;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: border-color 0.18s, background 0.18s, transform 0.12s;
+      user-select: none;
+      line-height: 1.4;
+      font-size: 0.95rem;
+    }
+
+    .option-item:hover {
+      border-color: var(--accent);
+      background: rgba(249,115,22,0.08);
+      transform: translateX(2px);
+    }
+
+    /* Активный вариант (выбранный) */
+    .option-item.selected,
+    .option-item input:checked + .option-label {
+      border-color: var(--accent);
+      background: rgba(249,115,22,0.12);
+    }
+
+    .option-item input:checked ~ .check-icon {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .option-item input:checked ~ .check-icon::after {
+      opacity: 1;
+    }
+
+    /* Иконка-индикатор (кружок или квадрат) */
+    .check-icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-radius: 50%;       /* radio */
+      margin-top: 1px;
+      transition: background 0.18s, border-color 0.18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Для checkbox — квадрат */
+    .check-icon.checkbox { border-radius: 5px; }
+
+    .check-icon::after {
+      content: '';
+      display: block;
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .check-icon.checkbox::after {
+      border-radius: 2px;
+    }
+
+    .option-text { color: var(--text); }
+
+    /* ─── Кнопки навигации ─── */
+    .nav-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background 0.18s, opacity 0.18s, transform 0.1s;
+      text-align: center;
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    .btn-back {
+      background: transparent;
+      color: var(--text-muted);
+      border: 2px solid var(--border);
+      flex: 0 0 auto;
+      padding: 14px 20px;
+    }
+
+    .btn-back:hover { border-color: var(--text-muted); color: var(--text); }
+
+    .btn-back:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .btn-next {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-next:hover { background: var(--accent-h); }
+
+    .btn-next:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ─── Экран результата ─── */
+    .result-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      display: none; /* скрыт до нужного момента */
+      animation: fadeInUp 0.3s ease both;
+    }
+
+    .result-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(249,115,22,0.15);
+      border: 1px solid rgba(249,115,22,0.3);
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 12px;
+      border-radius: 99px;
+      margin-bottom: 14px;
+    }
+
+    .result-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .result-body {
+      font-size: 0.93rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+
+    .result-body strong { color: var(--text); }
+
+    .result-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 12px 0 20px;
+    }
+
+    .result-list li {
+      display: flex;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .result-list li::before {
+      content: '✓';
+      color: var(--accent);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .result-budget {
+      background: rgba(249,115,22,0.1);
+      border-left: 3px solid var(--accent);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.9rem;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    /* ─── Форма контактов ─── */
+    .contact-form {
+      display: none; /* показывается после результата */
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .form-input {
+      background: var(--bg-option);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      padding: 13px 16px;
+      transition: border-color 0.18s;
+      outline: none;
+      width: 100%;
+    }
+
+    .form-input::placeholder { color: var(--text-muted); opacity: 0.6; }
+    .form-input:focus { border-color: var(--accent); }
+    .form-input.error { border-color: var(--error); }
+
+    .form-error {
+      font-size: 0.8rem;
+      color: var(--error);
+      display: none;
+    }
+
+    .form-error.visible { display: block; }
+
+    /* ─── Блок успешной отправки ─── */
+    .success-block {
+      display: none;
+      background: var(--bg-card);
+      border: 1px solid rgba(34,197,94,0.3);
+      border-radius: var(--radius);
+      padding: 28px;
+      text-align: center;
+      animation: fadeInUp 0.3s ease both;
+    }
+
+    .success-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+
+    .success-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--success);
+    }
+
+    .success-text {
+      font-size: 0.93rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .btn-checklist {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      border-radius: var(--radius);
+      padding: 12px 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.18s;
+      margin-bottom: 12px;
+    }
+
+    .btn-checklist:hover { background: rgba(249,115,22,0.1); }
+
+    .btn-restart {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      padding: 0;
+      transition: color 0.18s;
+    }
+
+    .btn-restart:hover { color: var(--text); }
+
+    /* ─── Подвал ─── */
+    .site-footer {
+      text-align: center;
+      padding: 16px;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ─── Адаптивность ─── */
+    @media (max-width: 480px) {
+      .site-header { padding: 12px 16px; }
+      .quiz-container { padding: 20px 12px 36px; }
+      .question-card { padding: 20px 16px; }
+      .question-text { font-size: 1.05rem; }
+      .result-card { padding: 20px 16px; }
+      .success-block { padding: 24px 16px; }
+
+      .btn { padding: 13px 16px; font-size: 0.9rem; }
+      .nav-buttons { gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Шапка с логотипом и телефоном -->
+  <header class="site-header">
+    <div class="logo">⚡ <span>Quiz</span>Electro</div>
+    <a class="header-phone" href="tel:+375291234567">+375 (29) 123-45-67</a>
+  </header>
+
+  <!-- Основная зона квиза -->
+  <main class="quiz-container">
+    <div class="quiz-inner">
+
+      <!-- Блок прогресса -->
+      <div class="progress-block" id="progressBlock">
+        <div class="progress-label">
+          <span id="progressText">Вопрос 1 из 8</span>
+          <span id="progressPercent">12%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill" style="width: 12.5%"></div>
+        </div>
+      </div>
+
+      <!-- Карточка вопроса (рендерится JS-ом) -->
+      <div class="question-card" id="questionCard">
+        <!-- Сюда JS вставит вопрос и варианты -->
+        <div class="question-hint">Шаг 1 — Ваша ситуация</div>
+        <p class="question-text">Что именно вас беспокоит или что вы хотите сделать?</p>
+        <div class="options-list">
+
+          <label class="option-item">
+            <input type="radio" name="q0" value="0">
+            <span class="check-icon"></span>
+            <span class="option-text">Полная замена старой проводки (алюминий, «пробки», нет заземления)</span>
+          </label>
+
+          <label class="option-item">
+            <input type="radio" name="q0" value="1">
+            <span class="check-icon"></span>
+            <span class="option-text">Проложить новые линии под мощную технику (варочная панель, кондиционер, тёплый пол, бойлер)</span>
+          </label>
+
+          <label class="option-item">
+            <input type="radio" name="q0" value="2">
+            <span class="check-icon"></span>
+            <span class="option-text">Заменить старый щиток на современный (с УЗО, автоматами, реле напряжения)</span>
+          </label>
+
+          <label class="option-item">
+            <input type="radio" name="q0" value="3">
+            <span class="check-icon"></span>
+            <span class="option-text">Всё вместе: и проводка старая, и щиток ужасный, и нужно добавить линии</span>
+          </label>
+
+          <label class="option-item">
+            <input type="radio" name="q0" value="4">
+            <span class="check-icon"></span>
+            <span class="option-text">Просто хочу понять, в каком состоянии моя электрика, чтобы спать спокойно</span>
+          </label>
+
+        </div>
+      </div>
+
+      <!-- Кнопки навигации -->
+      <div class="nav-buttons" id="navButtons">
+        <button class="btn btn-back" id="btnBack" disabled>← Назад</button>
+        <button class="btn btn-next" id="btnNext">Далее →</button>
+      </div>
+
+      <!-- Карточка результата (скрыта до конца квиза) -->
+      <div class="result-card" id="resultCard">
+        <div class="result-badge">⚡ Ваш диагноз</div>
+        <h2 class="result-title" id="resultTitle"></h2>
+        <div class="result-body" id="resultBody"></div>
+        <!-- Форма контактов встроена сюда -->
+        <div class="contact-form" id="contactForm">
+          <div class="form-group">
+            <label class="form-label" for="inputName">Ваше имя</label>
+            <input class="form-input" id="inputName" type="text" placeholder="Например, Иван" autocomplete="given-name">
+            <span class="form-error" id="errorName">Введите имя (минимум 2 символа)</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="inputPhone">Номер телефона</label>
+            <input class="form-input" id="inputPhone" type="tel" placeholder="+375 (XX) XXX-XX-XX" autocomplete="tel">
+            <span class="form-error" id="errorPhone">Введите номер телефона (минимум 9 цифр)</span>
+          </div>
+          <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;">
+            Нажимая кнопку, вы соглашаетесь на обработку персональных данных
+            в соответствии с законодательством Республики Беларусь.
+          </p>
+          <button class="btn btn-next" id="btnSubmit" style="flex: none; width: 100%;">
+            Получить смету / Записаться на замер
+          </button>
+        </div>
+      </div>
+
+      <!-- Блок после успешной отправки -->
+      <div class="success-block" id="successBlock">
+        <div class="success-icon">✅</div>
+        <h3 class="success-title">Спасибо! Заявка принята.</h3>
+        <p class="success-text">
+          Я перезвоню вам в течение часа в рабочее время (9:00–20:00).<br>
+          А пока — скачайте бесплатный чек-лист:
+        </p>
+        <a class="btn-checklist" href="#" download>
+          📄 «5 признаков, что электрик вас обманывает»
+        </a>
+        <br>
+        <button class="btn-restart" id="btnRestart">Пройти квиз заново</button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    Электрик в Гомеле и Гомельском районе · Работаю официально
+  </footer>
+
+  <script>
+    // ════════════════════════════════════════════════════
+    //  ДАННЫЕ: все 8 вопросов квиза
+    //  type: 'radio' — один ответ, 'checkbox' — несколько
+    // ════════════════════════════════════════════════════
+    const questions = [
+      {
+        hint: 'Шаг 1 — Ваша ситуация',
+        text: 'Что именно вас беспокоит или что вы хотите сделать?',
+        type: 'radio',
+        options: [
+          'Полная замена старой проводки (алюминий, «пробки», нет заземления)',
+          'Проложить новые линии под мощную технику (варочная панель, кондиционер, тёплый пол, бойлер)',
+          'Заменить старый щиток на современный (с УЗО, автоматами, реле напряжения)',
+          'Всё вместе: и проводка старая, и щиток ужасный, и нужно добавить линии',
+          'Просто хочу понять, в каком состоянии моя электрика, чтобы спать спокойно',
+        ]
+      },
+      {
+        hint: 'Шаг 2 — Состояние проводки',
+        text: 'Возраст и материал проводки (если не знаете — так и скажите)',
+        type: 'radio',
+        options: [
+          'Дом сдан до 2000 года, скорее всего алюминий, меняли ли — не знаю',
+          'Точно алюминий, меняли 15+ лет назад',
+          'Медь, меняли недавно (до 5–7 лет)',
+          'Дом новый (сдан после 2015), проводка медная, но не хватает розеток/мощности',
+          'Не имею понятия, но хочу, чтобы эксперт проверил',
+        ]
+      },
+      {
+        hint: 'Шаг 3 — Тревожные симптомы',
+        text: 'Какие признаки вас беспокоят прямо сейчас? (можно выбрать несколько)',
+        type: 'checkbox',
+        options: [
+          'Автоматы выбивают без причины (особенно когда включаю чайник + стиралку)',
+          'Розетки греются, искрят, пахнет горелой пластмассой',
+          'Лампочки моргают, свет тускнеет при включении мощных приборов',
+          'Нет УЗО или дифавтоматов — «щиплет» от розеток, сухость в руках',
+          'Часто скачет напряжение, бытовая техника ломается',
+          'Ничего не беспокоит, просто делаю ремонт и хочу сделать электрику «с запасом»',
+        ]
+      },
+      {
+        hint: 'Шаг 4 — Мощная техника',
+        text: 'Какая мощная техника будет в доме/квартире после ремонта? (выберите всё, что планируете)',
+        type: 'checkbox',
+        options: [
+          'Электроплита / варочная панель + духовка',
+          'Бойлер (водонагреватель) на 50–100 л',
+          'Кондиционер (сплит-система) — один или несколько',
+          'Тёплый пол электрический (в ванной, на кухне, в детской)',
+          'Стиральная машина + посудомоечная машина',
+          'Мощный ПК / сервер / домашний кинотеатр',
+          'Насос, скважина, септик (для частного дома)',
+          'Зарядная станция для электромобиля',
+          'Только обычная техника: холодильник, телевизор, чайник, утюг',
+        ]
+      },
+      {
+        hint: 'Шаг 5 — Новый щиток',
+        text: 'Что вы хотите получить от нового щитка? (ваш уровень комфорта и безопасности)',
+        type: 'radio',
+        options: [
+          'Минимум: просто заменить старые автоматы на новые (чтобы перестало выбивать)',
+          'Безопасность: УЗО на ванную/кухню + дифавтоматы на влажные зоны',
+          'Максимум: умный щит — реле напряжения от скачков, SPD, управление со смартфона',
+          'Не знаю, что лучше — положитесь на ваш опыт, посоветуйте оптимальный вариант',
+        ]
+      },
+      {
+        hint: 'Шаг 6 — Масштаб ремонта',
+        text: 'Каков масштаб ремонта? (возможность штробить стены)',
+        type: 'radio',
+        options: [
+          'Полный ремонт «в ноль» — стены открыты, можно штробить всё что угодно',
+          'Частичный ремонт, стены уже закрыты, но можно аккуратно проложить кабель в коробах/плинтусах',
+          'Косметический ремонт — нельзя штробить, только наружная проводка или замена щитка',
+          'Частный дом — можно штробить или использовать открытую проводку в кабель-каналах',
+        ]
+      },
+      {
+        hint: 'Шаг 7 — Сроки',
+        text: 'Когда планируете начинать работы?',
+        type: 'radio',
+        options: [
+          'Прямо сейчас / в ближайшие 2 недели',
+          'Через месяц-два',
+          'Не тороплюсь, собираю информацию на будущий год',
+          'Только узнаю цены, сравниваю мастеров',
+        ]
+      },
+      {
+        hint: 'Шаг 8 — Бюджет',
+        text: 'Ваш бюджет на электрику (материалы + работа) в белорусских рублях?',
+        type: 'radio',
+        options: [
+          'До 300 BYN (только мелкий ремонт / замена щитка)',
+          '300 – 700 BYN (замена проводки в 1–2 комнатах или частичное добавление линий)',
+          '700 – 1500 BYN (полная замена в двушке/трёшке или доме до 100 м²)',
+          '1500 – 3000 BYN (коттедж, много техники, щиток премиум, допуск Госэнергогазнадзора)',
+          'Более 3000 BYN / бюджет не ограничен',
+        ]
+      },
+    ];
+
+    // ════════════════════════════════════════════════════
+    //  РЕЗУЛЬТАТЫ: тексты для 5 типов клиентов
+    // ════════════════════════════════════════════════════
+    const results = {
+      type1: {
+        title: 'Ваш диагноз: проводка опасна, требуется полная замена.',
+        body: `
+          <p>Исходя из ваших ответов, ваша проводка — алюминиевая, скорее всего без заземления,
+          и она уже даёт сбои (выбивает автоматы, искрит). При включении мощной техники
+          возрастает риск перегрева и пожара.</p>
+          <strong>Что мы предлагаем:</strong>
+          <ul class="result-list">
+            <li>Полная замена алюминия на медь (кабель ВВГ-пнг(А)-LS белорусского производства — DEKRON или ЕТР).</li>
+            <li>Сборка нового щитка с УЗО, дифавтоматами и реле напряжения.</li>
+            <li>Замеры сопротивления изоляции и оформление протоколов для допуска Госэнергогазнадзора.</li>
+          </ul>
+          <div class="result-budget">💰 <strong>Ориентировочный бюджет:</strong> от 700 до 1500 BYN (материалы + работа). Точная смета — после бесплатного выезда на замер.</div>
+          <p>✍️ Оставьте телефон — я перезвоню в течение часа. Скажете, что из квиза — получите <strong>скидку 10% на диагностику</strong> (обычно 50 BYN, сейчас бесплатно).</p>
+        `
+      },
+      type2: {
+        title: 'Всё в порядке с безопасностью, но не хватает комфорта.',
+        body: `
+          <p>У вас уже есть медная проводка — это хорошо. Однако для техники, которую вы планируете
+          (кондиционер, варочная панель, бойлер), нужны отдельные линии. Если подключить их
+          в общую розетку — будет перегрузка и выбивание автоматов.</p>
+          <strong>Что сделаем:</strong>
+          <ul class="result-list">
+            <li>Проложим отдельные медные линии от щитка до каждой мощной точки.</li>
+            <li>Установим в щитке дополнительные автоматы или дифавтоматы.</li>
+            <li>Всё аккуратно, без лишнего штробления — используем кабель-каналы или плинтусы.</li>
+          </ul>
+          <div class="result-budget">💰 <strong>Ориентировочный бюджет</strong> на добавление 2–3 линий: 300–700 BYN (в зависимости от длины трассы).</div>
+          <p>✍️ Оставьте телефон — я приеду бесплатно, посмотрю ваш щиток и стены, скажу точную стоимость и дам гарантию 12 месяцев.</p>
+        `
+      },
+      type3: {
+        title: 'Ваша проблема — не проводка, а щиток. Это легко исправить.',
+        body: `
+          <p>Судя по ответам, проводка у вас относительно современная, а вот щиток не даёт безопасности.
+          Нет УЗО (защиты от утечек тока), нет реле напряжения — техника может сгореть при скачках,
+          а человека может ударить током.</p>
+          <strong>Что предлагаем:</strong>
+          <ul class="result-list">
+            <li>Демонтаж старого щитка, установка нового модульного (DEKRON, ABB или Legrand).</li>
+            <li>Подбор автоматов по номиналу, установка УЗО типа А на розетки мокрых зон.</li>
+            <li>Добавление реле напряжения — защита от перепадов 220В.</li>
+            <li>Замеры и акт допуска Госэнергогазнадзора (если нужно).</li>
+          </ul>
+          <div class="result-budget">💰 <strong>Ориентировочная стоимость</strong> щитка на 12–24 модуля с защитой: 300–600 BYN (материалы + работа).</div>
+          <p>✍️ Оставьте телефон — я подъеду, посмотрю ваш старый щиток и составлю смету. Работа займёт 1 день.</p>
+        `
+      },
+      type4: {
+        title: 'Понимаю — бюджет ограничен. Сделаем самое важное.',
+        body: `
+          <p>На 300 BYN невозможно заменить всю проводку в квартире, но можно:</p>
+          <ul class="result-list">
+            <li>Заменить старый щиток на новый (самый бюджетный вариант — 3–4 автомата + УЗО на 1 линию).</li>
+            <li>Перекинуть самые опасные линии (кухня, ванная) на отдельные автоматы.</li>
+            <li>Устранить откровенные проблемы — заменить искрящую розетку, подтянуть контакты.</li>
+          </ul>
+          <p>Это снизит риск пожара и удара током в 2–3 раза. Остальное можно доделать поэтапно.</p>
+          <div class="result-budget">💰 <strong>Что предлагаю уже сейчас:</strong> выезд на диагностику — 50 BYN (вычту из сметы, если закажете работы). Замена щитка + одного УЗО — примерно 250 BYN с материалами.</div>
+          <p>✍️ Оставьте телефон — я позвоню, расскажу, что реально сделать в вашем случае. Не буду навязывать то, что вам не по карману.</p>
+        `
+      },
+      type5: {
+        title: 'Ваш объект — повышенной сложности. Сделаем электрику, которой можно гордиться.',
+        body: `
+          <p>У вас частный дом/коттедж, много мощной техники (электроплита, бойлер, насос, возможно
+          зарядка для электромобиля). Нужна не просто замена проводки, а инженерное решение.</p>
+          <strong>Что входит в комплекс:</strong>
+          <ul class="result-list">
+            <li>Проект электроснабжения (схема щитка, расчёт нагрузок).</li>
+            <li>Полная замена вводного кабеля и разводка по зонам.</li>
+            <li>Сборка премиум-щитка: реле напряжения, SPD, УЗО селективного типа, клеммники WAGO.</li>
+            <li>Возможна интеграция умного дома (управление светом и розетками со смартфона).</li>
+            <li>Протоколы испытаний и помощь в сдаче Госэнергогазнадзору.</li>
+          </ul>
+          <div class="result-budget">💰 <strong>Ориентировочный бюджет:</strong> от 1500 BYN (для дома 100–150 м²) и выше. Точный расчёт — после выезда инженера.</div>
+          <p>✍️ Оставьте телефон — я перезвоню в течение 30 минут, уточню детали и предложу удобное время для замера. <strong>Гарантия на все работы — 3 года.</strong></p>
+        `
+      },
+    };
+
+    // ════════════════════════════════════════════════════
+    //  СОСТОЯНИЕ приложения
+    // ════════════════════════════════════════════════════
+    let currentStep = 0;          // текущий вопрос (0–7)
+    let answers    = {};          // { 0: [индексы], 1: [индексы], ... }
+
+    // ────────────────────────────────────────────────────
+    //  РЕНДЕР вопроса
+    // ────────────────────────────────────────────────────
+    function renderQuestion(stepIndex) {
+      const q   = questions[stepIndex];
+      const card = document.getElementById('questionCard');
+
+      // Перезапускаем анимацию
+      card.style.animation = 'none';
+      card.offsetHeight;           // reflow
+      card.style.animation = '';
+
+      const savedAnswers = answers[stepIndex] || [];
+
+      card.innerHTML = `
+        <div class="question-hint">${q.hint}</div>
+        <p class="question-text">${q.text}</p>
+        <div class="options-list">
+          ${q.options.map((opt, i) => {
+            const isChecked = savedAnswers.includes(i);
+            const inputType = q.type;
+            const name = `q${stepIndex}`;
+            return `
+              <label class="option-item ${isChecked ? 'selected' : ''}">
+                <input type="${inputType}" name="${name}" value="${i}" ${isChecked ? 'checked' : ''}>
+                <span class="check-icon ${inputType === 'checkbox' ? 'checkbox' : ''}"></span>
+                <span class="option-text">${opt}</span>
+              </label>
+            `;
+          }).join('')}
+        </div>
+      `;
+
+      // Слушаем выбор ответов
+      card.querySelectorAll('input').forEach(input => {
+        input.addEventListener('change', () => {
+          // Обновляем стиль выбранных
+          card.querySelectorAll('.option-item').forEach(el => el.classList.remove('selected'));
+          card.querySelectorAll('input:checked').forEach(el => el.closest('.option-item').classList.add('selected'));
+
+          // Сохраняем ответы
+          const checked = [...card.querySelectorAll('input:checked')].map(el => +el.value);
+          answers[stepIndex] = checked;
+        });
+      });
+
+      updateProgress(stepIndex);
+      updateNavButtons(stepIndex);
+    }
+
+    // ────────────────────────────────────────────────────
+    //  ОБНОВЛЕНИЕ прогресс-бара
+    // ────────────────────────────────────────────────────
+    function updateProgress(stepIndex) {
+      const total   = questions.length;
+      const current = stepIndex + 1;
+      const pct     = Math.round((current / total) * 100);
+
+      document.getElementById('progressText').textContent    = `Вопрос ${current} из ${total}`;
+      document.getElementById('progressPercent').textContent = `${pct}%`;
+      document.getElementById('progressFill').style.width    = `${pct}%`;
+    }
+
+    // ────────────────────────────────────────────────────
+    //  ОБНОВЛЕНИЕ кнопок
+    // ────────────────────────────────────────────────────
+    function updateNavButtons(stepIndex) {
+      const btnBack = document.getElementById('btnBack');
+      const btnNext = document.getElementById('btnNext');
+
+      btnBack.disabled = stepIndex === 0;
+      btnNext.textContent = stepIndex === questions.length - 1 ? 'Показать результат' : 'Далее →';
+    }
+
+    // ────────────────────────────────────────────────────
+    //  ЛОГИКА ОПРЕДЕЛЕНИЯ ТИПА
+    //  Приоритет: Тип 4 → Тип 1 → Тип 2 → Тип 3 → Тип 5 → default Тип 1
+    // ────────────────────────────────────────────────────
+    function determineType(ans) {
+      // Индексы вариантов для удобства
+      // Вопрос 1 (ans[0]): 0=полная замена, 1=новые линии, 2=щиток, 3=всё вместе, 4=диагностика
+      // Вопрос 2 (ans[1]): 0=до2000 алюм?, 1=точно алюм, 2=медь недавно, 3=новый дом, 4=не знаю
+      // Вопрос 3 (ans[2]): 0=выбивают, 1=греются, 2=моргают, 3=нет УЗО, 4=скачки, 5=ничего
+      // Вопрос 5 (ans[4]): 0=минимум, 1=безопасность, 2=максимум, 3=не знаю
+      // Вопрос 8 (ans[7]): 0=до300, 1=300-700, 2=700-1500, 3=1500-3000, 4=более3000
+
+      const q1 = ans[0] || [];
+      const q2 = ans[1] || [];
+      const q3 = ans[2] || [];
+      const q4 = ans[3] || [];
+      const q5 = ans[4] || [];
+      const q8 = ans[7] || [];
+
+      // Тип 4: ограниченный бюджет (проверяем первым — высокий приоритет)
+      const budget_low = q8.includes(0);
+      const has_symptoms = q3.some(i => [0,1,2,3,4].includes(i));
+      const q1_full_or_panel = q1.includes(0) || q1.includes(2);
+      if (budget_low && (has_symptoms || q1_full_or_panel)) return 'type4';
+
+      // Тип 1: аварийный
+      const q1_emergency = q1.includes(0) || q1.includes(3);
+      const q2_old = q2.includes(0) || q2.includes(1) || q2.includes(4);
+      const q3_danger = q3.some(i => [0,1,2,3].includes(i));
+      const budget_ok_1 = q8.some(i => [2,3,4].includes(i));
+      if (q1_emergency && q2_old && q3_danger && budget_ok_1) return 'type1';
+
+      // Тип 2: новая прокладка
+      const q1_lines = q1.includes(1);
+      const q2_new = q2.includes(2) || q2.includes(3);
+      const budget_ok_2 = q8.some(i => [1,2,3,4].includes(i));
+      if (q1_lines && q2_new && budget_ok_2) return 'type2';
+
+      // Тип 3: только щиток
+      const q1_panel = q1.includes(2);
+      const q2_not_aluminium = !q2.includes(0) && !q2.includes(1);
+      const budget_ok_3 = q8.some(i => [0,1,2].includes(i));
+      if (q1_panel && q2_not_aluminium && budget_ok_3) return 'type3';
+
+      // Тип 5: премиум / частный дом
+      const budget_premium = q8.some(i => [3,4].includes(i));
+      const q1_big = q1.includes(3) || q1.includes(0);
+      const q4_heavy = q4.some(i => [7,6,0].includes(i)); // зарядная, насос, плита
+      const q5_max = q5.includes(2) || q5.includes(3);
+      if (budget_premium && (q1_big || q4_heavy) && q5_max) return 'type5';
+
+      // По умолчанию — Тип 1 (универсальный)
+      return 'type1';
+    }
+
+    // ────────────────────────────────────────────────────
+    //  ПОКАЗ РЕЗУЛЬТАТА
+    // ────────────────────────────────────────────────────
+    function showResult() {
+      const typeKey = determineType(answers);
+      const result  = results[typeKey];
+
+      document.getElementById('questionCard').style.display  = 'none';
+      document.getElementById('navButtons').style.display    = 'none';
+      document.getElementById('progressBlock').style.display = 'none';
+
+      const resultCard = document.getElementById('resultCard');
+      resultCard.style.display = 'block';
+      document.getElementById('resultTitle').textContent  = result.title;
+      document.getElementById('resultBody').innerHTML     = result.body;
+
+      // Показываем форму контактов
+      document.getElementById('contactForm').style.display = 'flex';
+
+      console.log('Тип клиента:', typeKey);
+      console.log('Ответы:', answers);
+    }
+
+    // ────────────────────────────────────────────────────
+    //  ОТПРАВКА ФОРМЫ (имитация + Telegram)
+    // ────────────────────────────────────────────────────
+    function submitForm() {
+      const nameEl  = document.getElementById('inputName');
+      const phoneEl = document.getElementById('inputPhone');
+      const errName  = document.getElementById('errorName');
+      const errPhone = document.getElementById('errorPhone');
+      const btnSubmit = document.getElementById('btnSubmit');
+
+      // Сброс ошибок
+      nameEl.classList.remove('error');
+      phoneEl.classList.remove('error');
+      errName.classList.remove('visible');
+      errPhone.classList.remove('visible');
+
+      const name  = nameEl.value.trim();
+      const phone = phoneEl.value.trim();
+      const phoneDigits = phone.replace(/\D/g, '');
+
+      let valid = true;
+
+      if (name.length < 2) {
+        nameEl.classList.add('error');
+        errName.classList.add('visible');
+        valid = false;
+      }
+      if (phoneDigits.length < 9) {
+        phoneEl.classList.add('error');
+        errPhone.classList.add('visible');
+        valid = false;
+      }
+
+      if (!valid) return;
+
+      // Блокируем кнопку на 5 сек
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = 'Отправляем…';
+      let sec = 5;
+      const timer = setInterval(() => {
+        sec--;
+        if (sec <= 0) clearInterval(timer);
+      }, 1000);
+
+      // Собираем данные для отправки
+      const payload = {
+        name,
+        phone,
+        type: determineType(answers),
+        answers: Object.fromEntries(
+          Object.entries(answers).map(([qi, vals]) => [
+            `Вопрос ${+qi + 1}`,
+            vals.map(vi => questions[qi].options[vi]).join(' | ')
+          ])
+        ),
+        timestamp: new Date().toLocaleString('ru-BY'),
+      };
+
+      console.log('📤 Заявка:', payload);
+
+      // ─── Telegram Bot API ───
+      // Замените TOKEN и CHAT_ID на свои реальные значения:
+      // TOKEN — получить у @BotFather
+      // CHAT_ID — ваш личный chat_id (узнать через @userinfobot)
+      const TELEGRAM_TOKEN   = 'YOUR_BOT_TOKEN';    // ← сюда вставить токен
+      const TELEGRAM_CHAT_ID = 'YOUR_CHAT_ID';      // ← сюда вставить chat_id
+
+      const text = [
+        `⚡ *Новая заявка с квиза*`,
+        `👤 Имя: ${payload.name}`,
+        `📞 Телефон: ${payload.phone}`,
+        `🏷 Тип: ${payload.type}`,
+        ``,
+        `*Ответы:*`,
+        ...Object.entries(payload.answers).map(([q, a]) => `• ${q}: ${a}`),
+        ``,
+        `🕐 ${payload.timestamp}`,
+      ].join('\n');
+
+      if (TELEGRAM_TOKEN !== 'YOUR_BOT_TOKEN') {
+        // Реальная отправка
+        fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: TELEGRAM_CHAT_ID,
+            text,
+            parse_mode: 'Markdown',
+          }),
+        }).catch(() => {/* молчим — заявка в консоли */});
+      }
+
+      // Через 1.5 сек — показываем экран успеха
+      setTimeout(() => {
+        document.getElementById('resultCard').style.display  = 'none';
+        document.getElementById('successBlock').style.display = 'block';
+        document.getElementById('successBlock').style.animation = 'none';
+        document.getElementById('successBlock').offsetHeight;
+        document.getElementById('successBlock').style.animation = '';
+      }, 1500);
+    }
+
+    // ────────────────────────────────────────────────────
+    //  ПЕРЕЗАПУСК КВИЗА
+    // ────────────────────────────────────────────────────
+    function restartQuiz() {
+      currentStep = 0;
+      answers     = {};
+
+      document.getElementById('successBlock').style.display  = 'none';
+      document.getElementById('resultCard').style.display    = 'none';
+      document.getElementById('questionCard').style.display  = 'block';
+      document.getElementById('navButtons').style.display    = 'flex';
+      document.getElementById('progressBlock').style.display = 'flex';
+
+      document.getElementById('inputName').value  = '';
+      document.getElementById('inputPhone').value = '';
+
+      renderQuestion(0);
+    }
+
+    // ────────────────────────────────────────────────────
+    //  СОБЫТИЯ: кнопки навигации
+    // ────────────────────────────────────────────────────
+    document.getElementById('btnBack').addEventListener('click', () => {
+      if (currentStep > 0) {
+        currentStep--;
+        renderQuestion(currentStep);
+      }
+    });
+
+    document.getElementById('btnNext').addEventListener('click', () => {
+      // Проверяем, что ответ выбран
+      const hasAnswer = answers[currentStep] && answers[currentStep].length > 0;
+      if (!hasAnswer) {
+        // Тряска карточки
+        const card = document.getElementById('questionCard');
+        card.style.animation = 'none';
+        card.offsetHeight;
+        card.style.animation = 'shake 0.35s ease';
+        return;
+      }
+
+      if (currentStep < questions.length - 1) {
+        currentStep++;
+        renderQuestion(currentStep);
+      } else {
+        showResult();
+      }
+    });
+
+    document.getElementById('btnSubmit').addEventListener('click', submitForm);
+    document.getElementById('btnRestart').addEventListener('click', restartQuiz);
+
+    // Анимация тряски для «не выбран ответ»
+    const shakeStyle = document.createElement('style');
+    shakeStyle.textContent = `
+      @keyframes shake {
+        0%,100% { transform: translateX(0); }
+        20%      { transform: translateX(-6px); }
+        40%      { transform: translateX(6px); }
+        60%      { transform: translateX(-4px); }
+        80%      { transform: translateX(4px); }
+      }
+    `;
+    document.head.appendChild(shakeStyle);
+
+    // ────────────────────────────────────────────────────
+    //  СТАРТ: рендерим первый вопрос
+    // ────────────────────────────────────────────────────
+    renderQuestion(0);
+  </script>
+
+</body>
+</html>
